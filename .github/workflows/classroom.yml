@@ -1,0 +1,60 @@
+name: Autograding Tests
+'on':
+- push
+- repository_dispatch
+permissions:
+  checks: write
+  actions: read
+  contents: read
+jobs:
+  run-autograding-tests:
+    runs-on: ubuntu-latest
+    if: github.actor != 'github-classroom[bot]'
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    - name: add
+      id: add
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: add
+        setup-command: pip install -r requirements.txt
+        command: pytest tests/tests_addition.py --pylint
+        timeout: 10
+        max-score: 10
+    - name: subtract
+      id: subtract
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: subtract
+        setup-command: pip install -r requirements.txt
+        command: pytest tests/test_subtraction.py --pylint
+        timeout: 10
+        max-score: 10
+    - name: multiply
+      id: multiply
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: multiply
+        setup-command: pip install -r requirements.txt
+        command: pytest tests/test_multiplication.py --pylint
+        timeout: 10
+        max-score: 10
+    - name: divide
+      id: divide
+      uses: classroom-resources/autograding-command-grader@v1
+      with:
+        test-name: divide
+        setup-command: pip install -r requirements.txt
+        command: pytest tests/test_division.py --pylint
+        timeout: 10
+        max-score: 10
+    - name: Autograding Reporter
+      uses: classroom-resources/autograding-grading-reporter@v1
+      env:
+        ADD_RESULTS: "${{steps.add.outputs.result}}"
+        SUBTRACT_RESULTS: "${{steps.subtract.outputs.result}}"
+        MULTIPLY_RESULTS: "${{steps.multiply.outputs.result}}"
+        DIVIDE_RESULTS: "${{steps.divide.outputs.result}}"
+      with:
+        runners: add,subtract,multiply,divide
